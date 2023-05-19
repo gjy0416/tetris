@@ -4,9 +4,16 @@ let key_location_arr = [];
 let tetris_num = 0;
 let rotation_num = 0
 let flow_id;
+let block = [];
+
+function init_block() {
+	for (let i = 1; i <= 10; i++)
+		block[i] = 25;
+}
 function init_generatior() {
 	generated_tetris_now = array_generator();
 	generated_tetris_next = array_generator();
+	init_block();
 	tetris_generator();
 	flow_turn();
 }
@@ -24,10 +31,10 @@ function tetris_generator() {
 window.addEventListener('keydown', e => {
 	if ((e.keyCode == '37' || e.keyCode == '38' || e.keyCode == '39' || e.keyCode == '40' || e.keyCode == '32') && e.shiftKey == false) {
 		tetris_eraze();
-		if (e.keyCode == '37' && e.shiftKey == false) {
+		if (e.keyCode == '37' && e.shiftKey == false && check_left_block()) {
 			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) - 1);
 		}
-		else if (e.keyCode == '39' && e.shiftKey == false) {
+		else if (e.keyCode == '39' && e.shiftKey == false && check_right_block()) {
 			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) + 1);
 		}
 		else if (e.keyCode == '40' && e.shiftKey == false) {
@@ -166,9 +173,32 @@ function flow_turn() {
 	flow_id = setTimeout(() => {
 		tetris_eraze();
 		key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
-		console.log('키 로케이션' + key_location_arr[0]);
 		shape_rotation();
 		return flow_turn();
 	}, 1000);
 };
+function check_left_block() {
+	for (let k of key_location_arr) {
+		if (k.substring(k.indexOf('_') +1) == '1')
+			return false;
+	}
+	return true;
+}
+function check_right_block() {
+	for (let k of key_location_arr) {
+		if (k.substring(k.indexOf('_') +1) == '10')
+			return false;
+	}
+	return true;
+}
+function set_block() {
+	for (let i = 1; i <= block.length; i++) {
+		for (let j = 1; j <= 24; j--) {
+			if ($('#'+j+'_'+i).style.backgroundColor != 'gray') {
+				block[i] = j -1;
+				break;
+			}
+		}
+	}
+}
 init_generatior();
