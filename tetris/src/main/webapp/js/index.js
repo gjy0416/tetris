@@ -25,11 +25,10 @@ function array_generator() {
 function tetris_generator() {
 	rotation_num = 0;
 	key_location_arr[0] = '2_5';
-	console.log('현재 배열 1: ' + generated_tetris_now);
+	console.log('현재 배열 : ' + generated_tetris_now);
 	shape_rotation();
 }
 window.addEventListener('keydown', e => {
-	console.log('키 코드: '+e.keyCode);
 	if ((e.keyCode == '37' || e.keyCode == '38' || e.keyCode == '39' || e.keyCode == '40' || e.keyCode == '32') && e.shiftKey == false) {
 		tetris_eraze();
 		if (e.keyCode == '37' && check_left_block()) {
@@ -39,30 +38,16 @@ window.addEventListener('keydown', e => {
 			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) + 1);
 		}
 		else if (e.keyCode == '40') {
-			key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
+			if (check_put_block())
+				key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
 			clearTimeout(flow_id);
 			flow_turn();
 		}
 		else if (e.keyCode == '32') {
-			console.log('키 32 들어옴');
 			if (rotation_num == 3)
 				rotation_num = 0;
 			else
 				rotation_num++;
-			let location_set = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1));
-			console.log('들어가기전 location_set:'+location_set);
-			for (let location in key_location_arr) {
-				if (parseInt(location.substring(location.indexOf('_') +1)) < 1) {
-					location_set++;
-					console.log('로케이션 셋 ++');
-				}
-				else if (parseInt(location.substring(location.indexOf('_') +1)) > 10) {
-					location_set--;
-					console.log('로케이션 셋 --');
-				}
-			}
-			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + location_set;
-			console.log('최종 중심부: '+key_location_arr[0]);
 		}
 		else {
 
@@ -70,6 +55,27 @@ window.addEventListener('keydown', e => {
 		shape_rotation();
 	}
 });
+function check_set_arr() {
+	let v_location_set = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')));
+	let h_location_set = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1));
+	let bool_check_arr = true; 
+	for (let location of key_location_arr) {
+		if (parseInt(location.substring(location.indexOf('_') +1)) < 1) {
+			h_location_set++;
+			bool_check_arr = false;
+		}
+		else if (parseInt(location.substring(location.indexOf('_') +1)) > 10) {
+			h_location_set--;
+			bool_check_arr = false;
+		}
+		else if (parseInt(location.substring(0, location.indexOf('_'))) > 24) {
+			v_location_set--;
+			bool_check_arr = false;
+		}
+	}
+	key_location_arr[0] = v_location_set + '_' + h_location_set;
+	return bool_check_arr;
+}
 function shape_rotation() {
 	let U = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) - 1;
 	let C1 = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')));
@@ -176,20 +182,32 @@ function shape_rotation() {
 			break;
 		}
 	}
+	if (!check_set_arr())
+		return shape_rotation();
 	tetris_coloring(color);
 }
 function tetris_coloring(color) {
-	for (let i of key_location_arr)
-		$('#' + i).css('background-color', color);
+	let tetris_child = document.createElement('div');
+	tetris_child.setAttribute('class', 'tetris_coloring');
+	for (let i of key_location_arr) {
+		let tetris_child = document.createElement('div');
+		tetris_child.setAttribute('class', 'tetris_coloring');
+		$('#'+i).append(tetris_child);
+	}
+	$('.tetris_coloring').css('background-color', color);
 }
 function tetris_eraze() {
-	tetris_coloring('gray');
+	for (let i of key_location_arr) {
+		$('#'+i).children().remove();
+	}
 }
 function flow_turn() {
 	flow_id = setTimeout(() => {
-		tetris_eraze();
-		key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
-		shape_rotation();
+		if (check_put_block()) {
+			tetris_eraze();
+			key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
+			shape_rotation();
+		}
 		return flow_turn();
 	}, 1000);
 };
@@ -216,5 +234,14 @@ function set_block() {
 			}
 		}
 	}
+}
+function check_put_block() {
+	for (let i of key_location_arr) {
+		let block_location = parseInt(i.substring(0, parseInt(i.indexOf('_'))));
+		let stacked_block = block[parseInt(i.substring(parseInt(i.indexOf('_')) +1))];
+		if (block_location +1 == stacked_block)
+			return false;
+	}
+	return true;
 }
 init_generatior();
