@@ -3,7 +3,10 @@ let generated_tetris_next = [];
 let key_location_arr = [];
 let tetris_num = 0;
 let rotation_num = 0
+let is_I_rotation_f;
 let flow_id;
+let done_id;
+let is_done;
 let block = [];
 
 function init_block() {
@@ -23,6 +26,8 @@ function array_generator() {
 	return tetris_array;
 }
 function tetris_generator() {
+	is_I_rotation_f = true;
+	is_done = false;
 	rotation_num = 0;
 	key_location_arr[0] = '2_5';
 	console.log('현재 배열 : ' + generated_tetris_now);
@@ -43,11 +48,23 @@ window.addEventListener('keydown', e => {
 			clearTimeout(flow_id);
 			flow_turn();
 		}
-		else if (e.keyCode == '32') {
+		else if (e.keyCode == '38') {
 			if (rotation_num == 3)
 				rotation_num = 0;
 			else
 				rotation_num++;
+			if (generated_tetris_now[tetris_num] == 'I') {
+				if (rotation_num == 0 && !is_I_rotation_f)
+					key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) -1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1);
+				else if (rotation_num == 1) {
+					key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1)) +1);
+					is_I_rotation_f = false;
+				}
+				else if (rotation_num == 2)
+					key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) +1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1);
+				else
+					key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1)) -1);
+			}
 		}
 		else {
 
@@ -85,12 +102,15 @@ function shape_rotation() {
 	let R = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) + 1;
 	let color;
 	switch (generated_tetris_now[tetris_num]) {
-		case 'I': case 'T': case 'L': case 'J': {
+		case 'I' : case 'T': case 'L': case 'J': {
 			if (rotation_num == 0 || rotation_num == 2) {
 				key_location_arr[1] = C1 + '_' + L;
 				key_location_arr[2] = C1 + '_' + R;
 				if (generated_tetris_now[tetris_num] == 'I') {
-					key_location_arr[3] = C1 + '_' + (R + 1);
+					if (rotation_num == 0)
+						key_location_arr[3] = C1 + '_' + (R +1);
+					else 
+						key_location_arr[3] = C1 + '_' + (L -1);
 					color = 'skyblue';
 				}
 				else if (generated_tetris_now[tetris_num] == 'T') {
@@ -119,7 +139,10 @@ function shape_rotation() {
 				key_location_arr[1] = U + '_' + C2;
 				key_location_arr[2] = D + '_' + C2;
 				if (generated_tetris_now[tetris_num] == 'I') {
-					key_location_arr[3] = (D + 1) + '_' + C2;
+					if (rotation_num == 1)
+						key_location_arr[3] = (D +1) + '_' + C2;
+					else if (rotation_num == 3)
+						key_location_arr[3] = (U -1) + '_' + C2;
 					color = 'skyblue';
 				}
 				else if (generated_tetris_now[tetris_num] == 'T') {
@@ -154,10 +177,20 @@ function shape_rotation() {
 			break;
 		}
 		case 'S': {
-			if (rotation_num == 0 || rotation_num == 2) {
-				key_location_arr[1] = U + '_' + C2;
-				key_location_arr[2] = U + '_' + R;
-				key_location_arr[3] = C1 + '_' + L;
+			if (rotation_num == 0) {
+				key_location_arr[1] = D + '_' + L;
+				key_location_arr[2] = D + '_' + C2;
+				key_location_arr[3] = C1 + '_' + R;
+			}
+			else if (rotation_num == 1) {
+				key_location_arr[1] = U + '_' + L;
+				key_location_arr[2] = C1 + '_' + L;
+				key_location_arr[3] = D + '_' + C2;
+			}
+			else if (rotation_num == 2) {
+				key_location_arr[1] = C1 + '_' + L;
+				key_location_arr[2] = U + '_' + C2;
+				key_location_arr[3] = U + '_' + R;
 			}
 			else {
 				key_location_arr[1] = U + '_' + C2;
@@ -168,15 +201,25 @@ function shape_rotation() {
 			break;
 		}
 		case 'Z': {
-			if (rotation_num == 0 || rotation_num == 2) {
+			if (rotation_num == 0) {
+				key_location_arr[1] = C1 + '_' + L;
+				key_location_arr[2] = D + '_' + C2;
+				key_location_arr[3] = D + '_' + R;
+			}
+			else if (rotation_num == 1) {
+				key_location_arr[1] = U + '_' + C2;
+				key_location_arr[2] = C1 + '_' + L;
+				key_location_arr[3] = D + '_' + L;
+			}
+			else if (rotation_num == 2) {
 				key_location_arr[1] = U + '_' + L;
 				key_location_arr[2] = U + '_' + C2;
 				key_location_arr[3] = C1 + '_' + R;
 			}
 			else {
-				key_location_arr[1] = U + '_' + R;
-				key_location_arr[2] = C1 + '_' + R;
-				key_location_arr[3] = D + '_' + C2;
+				key_location_arr[1] = D + '_' + C2;
+				key_location_arr[2] = U + '_' + R;
+				key_location_arr[3] = C1 + '_' + R;
 			}
 			color = 'red';
 			break;
@@ -204,13 +247,19 @@ function tetris_eraze() {
 function flow_turn() {
 	flow_id = setTimeout(() => {
 		if (check_put_block()) {
+			clearTimeout(done_id);
 			tetris_eraze();
 			key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
 			shape_rotation();
 		}
+		else {
+			done_id = setTimeout(() => {
+				is_done = true;
+			}, 1500);
+		}
 		return flow_turn();
 	}, 1000);
-};
+}
 function check_left_block() {
 	for (let k of key_location_arr) {
 		if (k.substring(k.indexOf('_') +1) == '1')
@@ -243,5 +292,8 @@ function check_put_block() {
 			return false;
 	}
 	return true;
+}
+function check_done() {
+	
 }
 init_generatior();
