@@ -352,13 +352,21 @@ function eraze_stack() {
 }
 function pull_stack(esl) {
 	if (esl != null) {
-		let stack_num = 1;
-		for (let i = 24; i >= 1; i--) {
-			if (esl[stack_num -1] == i) {
-				for (let j = 1; j <= 10; j++) {
-					document.getElementById(i + '_' + j).style.backgroundColor = $('#' + (i - stack_num) + '_' + j).css('background-color');
-				}
+		let stack_num = 0;
+		let is_pull = false;
+		for (let i = esl[0]; i >= 5; i--) {
+			if (esl.indexOf(i) != -1) {
+				is_pull = true;
+			}
+			if (esl.indexOf(i -stack_num-1) != -1) {
 				stack_num++;
+				i++;
+				continue;
+			}
+			if (is_pull) {
+				for (let j = 1; j <= 10; j++) {
+					$('#' + i + '_' + j).css('background-color', $('#' + (i -1 -stack_num) + '_' + j).css('background-color'));
+				}
 			}
 		}
 	}
