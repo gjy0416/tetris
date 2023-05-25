@@ -7,21 +7,15 @@ let is_I_rotation_f;
 let flow_id;
 let done_id;
 let is_done;
-let block = [];
 
-function init_block() {
-	for (let i = 1; i <= 10; i++)
-		block[i] = 25;
-}
 function init_generatior() {
 	generated_tetris_now = array_generator();
 	generated_tetris_next = array_generator();
-	init_block();
 	tetris_generator();
 	flow_turn();
 }
 function array_generator() {
-	const tetris_array = ['I', 'O', 'T', 'L', 'J', 'S', 'Z'];
+	const tetris_array = [['I', 'skyblue'], ['O', 'yellow'], ['T', 'purple'], ['L', 'orange'], ['J', 'blue'], ['S', 'green'], ['Z', 'red']];
 	tetris_array.sort(() => Math.random() - 0.5);
 	return tetris_array;
 }
@@ -33,27 +27,15 @@ function tetris_generator() {
 	console.log('현재 배열 : ' + generated_tetris_now);
 	shape_rotation();
 }
-window.addEventListener('keydown', e => {
-	if ((e.keyCode == '37' || e.keyCode == '38' || e.keyCode == '39' || e.keyCode == '40' || e.keyCode == '32') && e.shiftKey == false) {
+window.addEventListener('keyup', e => {
+	if ((e.keyCode == '32' || e.keyCode == '38') && e.shiftKey == false) {
 		tetris_eraze();
-		if (e.keyCode == '37' && check_left_block()) {
-			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) - 1);
-		}
-		else if (e.keyCode == '39' && check_right_block()) {
-			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) + 1);
-		}
-		else if (e.keyCode == '40') {
-			if (check_put_block())
-				key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
-			clearTimeout(flow_id);
-			flow_turn();
-		}
-		else if (e.keyCode == '38') {
+		if (e.keyCode == '38') {
 			if (rotation_num == 3)
 				rotation_num = 0;
 			else
 				rotation_num++;
-			if (generated_tetris_now[tetris_num] == 'I') {
+			if (generated_tetris_now[tetris_num][0] == 'I') {
 				if (rotation_num == 0 && !is_I_rotation_f)
 					key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) -1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1);
 				else if (rotation_num == 1) {
@@ -65,9 +47,36 @@ window.addEventListener('keydown', e => {
 				else
 					key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1)) -1);
 			}
+			
 		}
 		else {
-
+			for (let i = 2; i <= 24; i++) {
+				if (!check_block_d())
+					break;
+				key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
+				key_location_arr[1] = (parseInt(key_location_arr[1].substring(0, key_location_arr[1].indexOf('_'))) + 1) + '_' + key_location_arr[1].substring(key_location_arr[1].indexOf('_') + 1);
+				key_location_arr[2] = (parseInt(key_location_arr[2].substring(0, key_location_arr[2].indexOf('_'))) + 1) + '_' + key_location_arr[2].substring(key_location_arr[2].indexOf('_') + 1);
+				key_location_arr[3] = (parseInt(key_location_arr[3].substring(0, key_location_arr[3].indexOf('_'))) + 1) + '_' + key_location_arr[3].substring(key_location_arr[3].indexOf('_') + 1);
+			}
+		}
+		shape_rotation();
+	}
+});
+window.addEventListener('keydown', e => {
+	if ((e.keyCode == '37' || e.keyCode == '39' || e.keyCode == '40') && e.shiftKey == false) {
+		tetris_eraze();
+		if (e.keyCode == '37' && check_block_l()) {
+			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) - 1);
+		}
+		else if (e.keyCode == '39' && check_block_r()) {
+			key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) + 1);
+		}
+		else if (e.keyCode == '40') {
+			if (check_block_d()) {
+				key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
+				clearTimeout(flow_id);
+				flow_turn();
+			}
 		}
 		shape_rotation();
 	}
@@ -76,6 +85,7 @@ function check_set_arr() {
 	let v_location_set = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')));
 	let h_location_set = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1));
 	let bool_check_arr = true; 
+	let bool_v_check = true;
 	for (let location of key_location_arr) {
 		if (parseInt(location.substring(location.indexOf('_') +1)) < 1) {
 			h_location_set++;
@@ -85,9 +95,10 @@ function check_set_arr() {
 			h_location_set--;
 			bool_check_arr = false;
 		}
-		else if (parseInt(location.substring(0, location.indexOf('_'))) > 24) {
+		else if (bool_v_check && parseInt(location.substring(0, location.indexOf('_'))) > 24) {
 			v_location_set--;
 			bool_check_arr = false;
+			bool_v_check = false;
 		}
 	}
 	key_location_arr[0] = v_location_set + '_' + h_location_set;
@@ -100,71 +111,62 @@ function shape_rotation() {
 	let L = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) - 1;
 	let C2 = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1));
 	let R = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1)) + 1;
-	let color;
-	switch (generated_tetris_now[tetris_num]) {
+	switch (generated_tetris_now[tetris_num][0]) {
 		case 'I' : case 'T': case 'L': case 'J': {
 			if (rotation_num == 0 || rotation_num == 2) {
 				key_location_arr[1] = C1 + '_' + L;
 				key_location_arr[2] = C1 + '_' + R;
-				if (generated_tetris_now[tetris_num] == 'I') {
+				if (generated_tetris_now[tetris_num][0] == 'I') {
 					if (rotation_num == 0)
 						key_location_arr[3] = C1 + '_' + (R +1);
 					else 
 						key_location_arr[3] = C1 + '_' + (L -1);
-					color = 'skyblue';
 				}
-				else if (generated_tetris_now[tetris_num] == 'T') {
+				else if (generated_tetris_now[tetris_num][0] == 'T') {
 					if (rotation_num == 0)
 						key_location_arr[3] = U + '_' + C2;
 					else
 						key_location_arr[3] = D + '_' + C2;
-					color = 'purple';
 				}
-				else if (generated_tetris_now[tetris_num] == 'L') {
+				else if (generated_tetris_now[tetris_num][0] == 'L') {
 					if (rotation_num == 0)
 						key_location_arr[3] = U + '_' + R;
 					else
 						key_location_arr[3] = D + '_' + L;
-					color = 'orange';
 				}
-				else if (generated_tetris_now[tetris_num] == 'J') {
+				else if (generated_tetris_now[tetris_num][0] == 'J') {
 					if (rotation_num == 0)
 						key_location_arr[3] = U + '_' + L;
 					else
 						key_location_arr[3] = D + '_' + R;
-					color = 'blue';
 				}
 			}
 			else {
 				key_location_arr[1] = U + '_' + C2;
 				key_location_arr[2] = D + '_' + C2;
-				if (generated_tetris_now[tetris_num] == 'I') {
+				if (generated_tetris_now[tetris_num][0] == 'I') {
 					if (rotation_num == 1)
 						key_location_arr[3] = (D +1) + '_' + C2;
 					else if (rotation_num == 3)
 						key_location_arr[3] = (U -1) + '_' + C2;
-					color = 'skyblue';
 				}
-				else if (generated_tetris_now[tetris_num] == 'T') {
+				else if (generated_tetris_now[tetris_num][0] == 'T') {
 					if (rotation_num == 1)
 						key_location_arr[3] = C1 + '_' + R;
 					else
 						key_location_arr[3] = C1 + '_' + L;
-					color = 'purple';
 				}
-				else if (generated_tetris_now[tetris_num] == 'L') {
+				else if (generated_tetris_now[tetris_num][0] == 'L') {
 					if (rotation_num == 1)
 						key_location_arr[3] = D + '_' + R;
 					else
 						key_location_arr[3] = U + '_' + L;
-					color = 'orange';
 				}
-				else if (generated_tetris_now[tetris_num] == 'J') {
+				else if (generated_tetris_now[tetris_num][0] == 'J') {
 					if (rotation_num == 1)
 						key_location_arr[3] = U + '_' + R;
 					else
 						key_location_arr[3] = D + '_' + L;
-					color = 'blue';
 				}
 			}
 			break;
@@ -173,7 +175,6 @@ function shape_rotation() {
 			key_location_arr[1] = U + '_' + C2;
 			key_location_arr[2] = U + '_' + R;
 			key_location_arr[3] = C1 + '_' + R;
-			color = 'yellow';
 			break;
 		}
 		case 'S': {
@@ -197,7 +198,6 @@ function shape_rotation() {
 				key_location_arr[2] = C1 + '_' + R;
 				key_location_arr[3] = D + '_' + R;
 			}
-			color = 'green';
 			break;
 		}
 		case 'Z': {
@@ -221,13 +221,12 @@ function shape_rotation() {
 				key_location_arr[2] = U + '_' + R;
 				key_location_arr[3] = C1 + '_' + R;
 			}
-			color = 'red';
 			break;
 		}
 	}
 	if (!check_set_arr())
 		return shape_rotation();
-	tetris_coloring(color);
+	tetris_coloring(generated_tetris_now[tetris_num][1]);
 }
 function tetris_coloring(color) {
 	let tetris_child = document.createElement('div');
@@ -239,6 +238,11 @@ function tetris_coloring(color) {
 	}
 	$('.tetris_coloring').css('background-color', color);
 }
+function set_block_checker() {
+	for (let j of key_location_arr) {
+		
+	}
+}
 function tetris_eraze() {
 	for (let i of key_location_arr) {
 		$('#'+i).children().remove();
@@ -246,54 +250,70 @@ function tetris_eraze() {
 }
 function flow_turn() {
 	flow_id = setTimeout(() => {
-		if (check_put_block()) {
-			clearTimeout(done_id);
+		if (check_block_d()) {
 			tetris_eraze();
 			key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) + 1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') + 1);
 			shape_rotation();
+			is_done = false;
 		}
-		else {
+		else if (!check_block_d() && done_id == null) {
+			console.log('블럭 막힘!');
+			is_done = true;
 			done_id = setTimeout(() => {
-				is_done = true;
-			}, 1500);
+			done_check();
+			}, 500);
 		}
 		return flow_turn();
 	}, 1000);
 }
-function check_left_block() {
+function check_block_l() {
 	for (let k of key_location_arr) {
-		if (k.substring(k.indexOf('_') +1) == '1')
+		let block_location_l = k.substring(0, k.indexOf('_')) + '_' + (parseInt(k.substring(k.indexOf('_') +1)) -1);
+		if ($('#' + block_location_l).css('background-color') != 'rgb(128, 128, 128)' || k.substring(k.indexOf('_') +1) == '1')
 			return false;
 	}
 	return true;
 }
-function check_right_block() {
+function check_block_r() {
 	for (let k of key_location_arr) {
-		if (k.substring(k.indexOf('_') +1) == '10')
+		let block_location_r = k.substring(0, k.indexOf('_')) + '_' + (parseInt(k.substring(k.indexOf('_') +1)) +1);
+		if ($('#' + block_location_r).css('background-color') != 'rgb(128, 128, 128)' || k.substring(k.indexOf('_') +1) == '10')
 			return false;
 	}
 	return true;
 }
-function set_block() {
-	for (let i = 1; i <= block.length; i++) {
-		for (let j = 1; j <= 24; j--) {
-			if ($('#'+j+'_'+i).style.backgroundColor != 'gray') {
-				block[i] = j -1;
-				break;
-			}
+function check_block_d() {
+	for (let k of key_location_arr) {
+		let block_location_d = (parseInt(k.substring(0, parseInt(k.indexOf('_')))) +1) + '_' + k.substring(k.indexOf('_') +1);
+		if ($('#' + block_location_d).css('background-color') != 'rgb(128, 128, 128)' || k.substring(k.indexOf('_') +1) == '24')
+			return false;
+	}
+	return true;
+}
+function done_check() {
+	if (is_done) {
+		if (!check_block_d()) {
+			stack_block();
+		}
+		else {
+			clearTimeout(done_id);
+			is_done = false;
 		}
 	}
+	done_id = null;
 }
-function check_put_block() {
+function stack_block() {
 	for (let i of key_location_arr) {
-		let block_location = parseInt(i.substring(0, parseInt(i.indexOf('_'))));
-		let stacked_block = block[parseInt(i.substring(parseInt(i.indexOf('_')) +1))];
-		if (block_location +1 == stacked_block)
-			return false;
+		$('#'+i).css('backgroundColor', generated_tetris_now[tetris_num][1]);
 	}
-	return true;
-}
-function check_done() {
-	
+	tetris_eraze();
+	if (tetris_num == 6) {
+		tetris_num = 0;
+		generated_tetris_now = generated_tetris_next;
+		generated_tetris_now = array_generator();
+	}
+	else 
+		tetris_num++;
+	tetris_generator();
 }
 init_generatior();

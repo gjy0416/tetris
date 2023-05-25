@@ -22,7 +22,6 @@
 			</c:forEach>
 		</table>
 	</div>
-	<button type="button" onclick="tetris_generator()">클릭</button>
 	<script src="js/index.js"></script>
 </body>
 </html>
