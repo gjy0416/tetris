@@ -1,9 +1,9 @@
 let generated_tetris_now = [];
 let generated_tetris_next = [];
 let key_location_arr = [];
+let last_key_location_arr = [];
 let tetris_num = 0;
 let rotation_num = 0
-let is_I_rotation_f;
 let flow_id;
 let done_id;
 let is_done;
@@ -20,7 +20,6 @@ function array_generator() {
 	return tetris_array;
 }
 function tetris_generator() {
-	is_I_rotation_f = true;
 	is_done = false;
 	rotation_num = 0;
 	key_location_arr[0] = '2_5';
@@ -36,18 +35,16 @@ window.addEventListener('keyup', e => {
 			else
 				rotation_num++;
 			if (generated_tetris_now[tetris_num][0] == 'I') {
-				if (rotation_num == 0 && !is_I_rotation_f)
+				if (rotation_num == 0)
 					key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) -1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1);
 				else if (rotation_num == 1) {
 					key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1)) +1);
-					is_I_rotation_f = false;
 				}
 				else if (rotation_num == 2)
 					key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) +1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1);
 				else
 					key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1)) -1);
 			}
-			
 		}
 		else {
 			for (let i = 2; i <= 24; i++) {
@@ -226,7 +223,32 @@ function shape_rotation() {
 	}
 	if (!check_set_arr())
 		return shape_rotation();
+	if (!check_rotation())
+		return shape_rotation();
 	tetris_coloring(generated_tetris_now[tetris_num][1]);
+}
+function check_rotation() {
+	for (let i of key_location_arr) {
+		if ($('#' + i).css('background-color') != 'rgb(128, 128, 128)') {
+			if (rotation_num == 0)
+				rotation_num = 3;
+			else 
+				rotation_num--;
+			if (generated_tetris_now[tetris_num][0] == 'I') {
+				if (rotation_num == 0)
+					key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1)) -1);
+				else if (rotation_num == 1) {
+					key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) -1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1);
+				}
+				else if (rotation_num == 2)
+					key_location_arr[0] = key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')) + '_' + (parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1)) +1);
+				else
+					key_location_arr[0] = (parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) +1) + '_' + key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1);
+			}
+			return false;
+		}
+	}
+	return true;
 }
 function tetris_coloring(color) {
 	let tetris_child = document.createElement('div');
@@ -237,11 +259,6 @@ function tetris_coloring(color) {
 		$('#'+i).append(tetris_child);
 	}
 	$('.tetris_coloring').css('background-color', color);
-}
-function set_block_checker() {
-	for (let j of key_location_arr) {
-		
-	}
 }
 function tetris_eraze() {
 	for (let i of key_location_arr) {
@@ -294,6 +311,8 @@ function done_check() {
 	if (is_done) {
 		if (!check_block_d()) {
 			stack_block();
+			eraze_stack();
+			tetris_generator();
 		}
 		else {
 			clearTimeout(done_id);
@@ -314,6 +333,34 @@ function stack_block() {
 	}
 	else 
 		tetris_num++;
-	tetris_generator();
+}
+function eraze_stack() {
+	let erazed_stack_location = [];
+	for (let i = 24; i >= 1; i--) {
+		for (let j = 1; j <= 10; j++) {
+			if ($('#' + i +'_' + j).css('background-color') == 'rgb(128, 128, 128)') {
+				break;
+			}
+			if (j == 10) {
+				erazed_stack_location.push(i);
+				for (let k = 1; k <= 10; k++)
+					$('#' + i + '_' + k).css('background-color', 'gray');
+			}
+		}
+	}
+	pull_stack(erazed_stack_location);
+}
+function pull_stack(esl) {
+	if (esl != null) {
+		let stack_num = 1;
+		for (let i = 24; i >= 1; i--) {
+			if (esl[stack_num -1] == i) {
+				for (let j = 1; j <= 10; j++) {
+					document.getElementById(i + '_' + j).style.backgroundColor = $('#' + (i - stack_num) + '_' + j).css('background-color');
+				}
+				stack_num++;
+			}
+		}
+	}
 }
 init_generatior();
