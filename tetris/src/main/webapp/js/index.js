@@ -8,7 +8,7 @@ let flow_id;
 let done_id;
 let is_done;
 
-function init_generatior() {
+function init_generator() {
 	generated_tetris_now = array_generator();
 	generated_tetris_next = array_generator();
 	tetris_generator();
@@ -78,29 +78,6 @@ window.addEventListener('keydown', e => {
 		shape_rotation();
 	}
 });
-function check_set_arr() {
-	let v_location_set = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')));
-	let h_location_set = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1));
-	let bool_check_arr = true; 
-	let bool_v_check = true;
-	for (let location of key_location_arr) {
-		if (parseInt(location.substring(location.indexOf('_') +1)) < 1) {
-			h_location_set++;
-			bool_check_arr = false;
-		}
-		else if (parseInt(location.substring(location.indexOf('_') +1)) > 10) {
-			h_location_set--;
-			bool_check_arr = false;
-		}
-		else if (bool_v_check && parseInt(location.substring(0, location.indexOf('_'))) > 24) {
-			v_location_set--;
-			bool_check_arr = false;
-			bool_v_check = false;
-		}
-	}
-	key_location_arr[0] = v_location_set + '_' + h_location_set;
-	return bool_check_arr;
-}
 function shape_rotation() {
 	let U = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_'))) - 1;
 	let C1 = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')));
@@ -226,6 +203,29 @@ function shape_rotation() {
 	if (!check_rotation())
 		return shape_rotation();
 	tetris_coloring(generated_tetris_now[tetris_num][1]);
+}
+function check_set_arr() {
+	let v_location_set = parseInt(key_location_arr[0].substring(0, key_location_arr[0].indexOf('_')));
+	let h_location_set = parseInt(key_location_arr[0].substring(key_location_arr[0].indexOf('_') +1));
+	let bool_check_arr = true; 
+	let bool_v_check = true;
+	for (let location of key_location_arr) {
+		if (parseInt(location.substring(location.indexOf('_') +1)) < 1) {
+			h_location_set++;
+			bool_check_arr = false;
+		}
+		else if (parseInt(location.substring(location.indexOf('_') +1)) > 10) {
+			h_location_set--;
+			bool_check_arr = false;
+		}
+		else if (bool_v_check && parseInt(location.substring(0, location.indexOf('_'))) > 24) {
+			v_location_set--;
+			bool_check_arr = false;
+			bool_v_check = false;
+		}
+	}
+	key_location_arr[0] = v_location_set + '_' + h_location_set;
+	return bool_check_arr;
 }
 function check_rotation() {
 	for (let i of key_location_arr) {
@@ -355,7 +355,7 @@ function pull_stack(esl) {
 		let stack_num = 0;
 		let is_pull = false;
 		for (let i = esl[0]; i >= 5; i--) {
-			if (esl.indexOf(i) != -1) {
+			if (!is_pull && esl.indexOf(i) != -1) {
 				is_pull = true;
 			}
 			if (esl.indexOf(i -stack_num-1) != -1) {
@@ -371,4 +371,4 @@ function pull_stack(esl) {
 		}
 	}
 }
-init_generatior();
+init_generator();
