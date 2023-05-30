@@ -24,11 +24,11 @@ table {
 }
 #box {
 	margin: 50px auto;
-	width: 503px;
+	width: 573px;
 }
 .tetris_background {
-	width: 25px;
-	height: 25px;
+	width: 30px;
+	height: 30px;
 	border: 1px double white;
 	background-color: gray;
 	border-collapse: collapse;
@@ -60,8 +60,8 @@ table {
 	margin: 10px;
 }
 .next_tetris_background {
-	width: 25px;
-	height: 25px;
+	width: 30px;
+	height: 30px;
 	border: 1px double white;
 	background-color: gray;
 	border-collapse: collapse;
