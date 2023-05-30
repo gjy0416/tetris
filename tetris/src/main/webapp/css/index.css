@@ -12,9 +12,20 @@ table {
 
 #tetris_box {
 	border: 3px solid black;
-	min-width: 5px;
+	margin: 50px auto;
+	width: 900px;
+	height: 900px;
 }
-
+#tetris_box > p {
+	text-align: center;
+	font-size: 2.2em;
+	font-weight: bold;
+	margin: 30px;
+}
+#box {
+	margin: 50px auto;
+	width: 503px;
+}
 .tetris_background {
 	width: 25px;
 	height: 25px;
@@ -22,7 +33,36 @@ table {
 	background-color: gray;
 	border-collapse: collapse;
 }
+.tetris_hidden_background {
+	background-color: gray;
+}
 .tetris_coloring {
 	width: 100%;
 	height: 100%;
+}
+#tetris_table {
+	border: 3px solid black;
+	float: left;
+}
+#next_tetris {
+	border: 3px solid black;
+	width: 200px;
+	height: 200px;
+	margin-left: 50px;
+	float: left;
+}
+#next_tetris table {
+	margin: auto;
+}
+#next_tetris p {
+	text-align: center;
+	font-size: 1.3em;
+	margin: 10px;
+}
+.next_tetris_background {
+	width: 25px;
+	height: 25px;
+	border: 1px double white;
+	background-color: gray;
+	border-collapse: collapse;
 }

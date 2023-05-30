@@ -1,12 +1,12 @@
 let generated_tetris_now = [];
 let generated_tetris_next = [];
 let key_location_arr = [];
-let last_key_location_arr = [];
 let tetris_num = 0;
 let rotation_num = 0
 let flow_id;
 let done_id;
 let is_done;
+let init = init_generator();
 
 function init_generator() {
 	generated_tetris_now = array_generator();
@@ -22,8 +22,13 @@ function array_generator() {
 function tetris_generator() {
 	is_done = false;
 	rotation_num = 0;
-	key_location_arr[0] = '2_5';
+	if (generated_tetris_now[tetris_num][0] == 'S' || generated_tetris_now[tetris_num][0] == 'Z' )
+		key_location_arr[0] = '3_5';
+	else
+		key_location_arr[0] = '4_5';
 	console.log('현재 배열 : ' + generated_tetris_now);
+	eraze_next_tetris();
+	show_next_tetris();
 	shape_rotation();
 }
 window.addEventListener('keyup', e => {
@@ -229,6 +234,8 @@ function check_set_arr() {
 }
 function check_rotation() {
 	for (let i of key_location_arr) {
+		if (parseInt(i.substring(0, i.indexOf('_'))) <= 4)
+			continue;
 		if ($('#' + i).css('background-color') != 'rgb(128, 128, 128)') {
 			if (rotation_num == 0)
 				rotation_num = 3;
@@ -278,6 +285,10 @@ function flow_turn() {
 			is_done = true;
 			done_id = setTimeout(() => {
 			done_check();
+			if (check_defeat()) {
+				show_choice();
+				return;
+			}
 			}, 500);
 		}
 		return flow_turn();
@@ -329,7 +340,7 @@ function stack_block() {
 	if (tetris_num == 6) {
 		tetris_num = 0;
 		generated_tetris_now = generated_tetris_next;
-		generated_tetris_now = array_generator();
+		generated_tetris_next = array_generator();
 	}
 	else 
 		tetris_num++;
@@ -371,4 +382,87 @@ function pull_stack(esl) {
 		}
 	}
 }
-init_generator();
+function eraze_next_tetris() {
+	$('.next_tetris_background').css('backgroundColor', 'gray');
+}
+function show_next_tetris() {
+	let next_tetris;
+	if (tetris_num != 6)
+		next_tetris = generated_tetris_now[tetris_num +1];
+	else 
+		next_tetris = generated_tetris_next[0];
+	switch (next_tetris[0]) {
+		case 'I': {
+			$('#'+ '3-1').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-3').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-4').css('backgroundColor', next_tetris[1]);
+			break;
+		}
+		case 'O': {
+			$('#'+ '2-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '2-3').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-3').css('backgroundColor', next_tetris[1]);
+			break;
+		}
+		case 'T': {
+			$('#'+ '2-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-1').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-3').css('backgroundColor', next_tetris[1]);
+			break;
+		}
+		case 'L': {
+			$('#'+ '2-3').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-1').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-3').css('backgroundColor', next_tetris[1]);
+			break;
+		}
+		case 'J': {
+			$('#'+ '2-1').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-1').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-3').css('backgroundColor', next_tetris[1]);
+			break;
+		}
+		case 'S': {
+			$('#'+ '2-3').css('backgroundColor', next_tetris[1]);
+			$('#'+ '2-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-1').css('backgroundColor', next_tetris[1]);
+			break;
+		}
+		case 'Z': {
+			$('#'+ '2-1').css('backgroundColor', next_tetris[1]);
+			$('#'+ '2-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-2').css('backgroundColor', next_tetris[1]);
+			$('#'+ '3-3').css('backgroundColor', next_tetris[1]);
+			break;
+		}
+	}
+}
+function check_defeat() {
+	for (let i = 1; i <= 10; i++) {
+		if ($('#4_' +i).css('background-color') != 'rgb(128, 128, 128)')
+			return true;
+	}
+	return false;
+}
+function show_choice() {
+	alert('패배!');
+	clearTimeout(flow_id);
+	clearTimeout(done_id);
+	if (confirm('게임을 다시 시작하시겠습니까?')) {
+		init_all();
+		init = init_generator();
+	}
+}
+function init_all() {
+	$('.tetris_hidden_background').css('backgroundColor', 'gray');
+	$('.tetris_background').css('backgroundColor', 'gray');
+	$('.tetris_background').children().remove();
+	tetris_num = 0;
+	key_location_arr = [];
+}
