@@ -40,10 +40,9 @@
 				<table>
 					<c:forEach begin="1" end="4" varStatus="status">
 						<tr>
-							<td class="next_tetris_background" id="${status.count}-1"></td>
-							<td class="next_tetris_background" id="${status.count}-2"></td>
-							<td class="next_tetris_background" id="${status.count}-3"></td>
-							<td class="next_tetris_background" id="${status.count}-4"></td>
+							<c:forEach begin="1" end="4" varStatus="status2">
+								<td class="next_tetris_background" id="${status.count}-${status2.count}"></td>
+							</c:forEach>
 						</tr>
 					</c:forEach>
 				</table>
